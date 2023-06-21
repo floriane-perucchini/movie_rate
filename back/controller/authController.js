@@ -8,6 +8,10 @@ const authController = {
     const user = request.body;
     try{
       const verifyUser = await userDatamapper.getOne(user.email.toLowerCase());
+      if(!user.email || !user.password){
+        return next(new Error("Email or password is missing"));
+      }; 
+
       if(verifyUser?.email === user?.email){
         return next(new Error("Email already exists"));
       }
@@ -32,8 +36,9 @@ const authController = {
   login: async function (request, response, next) {
     const user = request.body;
     try{
-      const checkUser = await userDatamapper.getOne(user.email.toLowerCase());
-      if(!user){
+      const checkUser = await userDatamapper.getOne(user?.email?.toLowerCase());
+
+      if(!checkUser){
         return next(new Error("Email or password is incorrect"));
       }
 
@@ -41,23 +46,26 @@ const authController = {
         return next(new Error("Email or password is incorrect"));
       }
 
-      const checkPassword = await bcrypt.compare(user.password, checkUser.password);
+      const checkPassword = await bcrypt.compare(user?.password, checkUser?.password);
       if(!checkPassword){
         return next(new Error("Email or password is incorrect"));
       }
+
+      delete checkUser.password;
 
       //JWT
       const access_token = jwtMiddleware.generateAccessToken();
 
       const connectedUser = await userDatamapper.updateUserToken({
-        email: user.email.toLowerCase(),
+        email: checkUser.email?.toLowerCase(),
         token: access_token
       })
 
       return (
         response.status(200).json({
           message: "User logged in successfully",
-          user: connectedUser
+          user: checkUser,
+          access_token: access_token
         })
       )
 

@@ -24,7 +24,7 @@ const userDatamapper = {
   },
 
   updateUserToken: async function (email, token) {
-    const sql = `UPDATE "user" SET token = $1 WHERE email = $2 RETURNING *`;
+    const sql = `UPDATE "user" SET access_token = $1 WHERE email = $2 RETURNING *`;
     const result = await client.query(sql, [token, email]);
     return result.rows[0];
   },
