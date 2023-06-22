@@ -39,16 +39,25 @@ const authController = {
       const checkUser = await userDatamapper.getOne(user?.email?.toLowerCase());
 
       if(!checkUser){
-        return next(new Error("Email or password is incorrect"));
+        return (response.status(400).json({
+          message: "Email or password is incorrect"
+        })
+        )
       }
 
       if(!user.password){
-        return next(new Error("Email or password is incorrect"));
+        return (response.status(400).json({
+          message: "Email or password is incorrect"
+        })
+        )
       }
 
       const checkPassword = await bcrypt.compare(user?.password, checkUser?.password);
       if(!checkPassword){
-        return next(new Error("Email or password is incorrect"));
+        return (response.status(400).json({
+          message: "Email or password is incorrect"
+        })
+        )
       }
 
       delete checkUser.password;

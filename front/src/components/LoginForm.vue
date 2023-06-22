@@ -1,54 +1,52 @@
 <template>
-  <section class="signup">
-    <form class="signupForm" @submit.prevent="handleSubmit">
-      <label class="signupForm--label">Email:</label>
-      <input class="signupForm--input" type="email" required v-model="email" />
+  <section class="login">
+    <form class="loginForm" @submit.prevent="handleSubmit">
+      <p class="loginForm--error" v-if="error">{{ error }}</p>
 
-      <label class="signupForm--label">Password:</label>
-      <input class="signupForm--input" type="password" required v-model="password" />
-      <p class="signupForm--error" v-if="passwordError">{{ passwordError }}</p>
+      <label class="loginForm--label">Email:</label>
+      <input class="loginForm--input" type="email" required v-model="email" />
+
+      <label class="loginForm--label">Password:</label>
+      <input class="loginForm--input" type="password" required v-model="password" />
 
       <div class="submit">
-        <button class="submit--button">Create an account</button>
+        <button class="submit--button">Login</button>
       </div>
     </form>
   </section>
 </template>
 
 <script>
+import { saveStorage } from '../assets/localStorage';
+
 export default {
   data() {
     return {
       email: '',
       password: '',
-      passwordError: '',
       error: ''
     };
   },
   methods: {
     handleSubmit() {
-      //validate password
-      if (!this.password) {
-        this.passwordError = 'Please enter a password';
-        return;
-      }
       const email = this.email;
       const password = this.password;
-      this.fetchSignup(email, password);
+      this.fetchLogin(email, password);
     },
-    async fetchSignup(email, password) {
-      await fetch('http://localhost:3001/auth/signup', {
+    async fetchLogin(email, password) {
+      await fetch('http://localhost:3001/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: email, password: password })
       })
         .then((res) => res.json())
         .then((res) => {
           console.log(res);
-          if (res.message === 'User created successfully') {
-            this.$router.push({ name: 'Login' });
+          if (res.message === 'User logged in successfully') {
+            saveStorage('access_token', res.access_token);
+            this.$router.push({ name: 'Home' });
           } else {
             this.error = res.message;
           }
@@ -60,7 +58,7 @@ export default {
 </script>
 
 <style>
-.signup {
+.login {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -70,7 +68,7 @@ export default {
   border: 1px solid #ddd;
 }
 
-.signupForm {
+.loginForm {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -78,11 +76,11 @@ export default {
   margin: 0 auto;
 }
 
-.signupForm--label {
+.loginForm--label {
   margin-top: 1rem;
 }
 
-.signupForm--input {
+.loginForm--input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;

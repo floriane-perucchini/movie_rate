@@ -1,14 +1,54 @@
 <template>
   <nav class="nav">
-    <router-link class="Logo" to="/">Movie Rate</router-link>
+    <p class="logo" @click="redirect">Movie Rate</p>
     <router-link class="nav-link" :to="{ name: 'Home' }">Home</router-link>
-    <router-link class="nav-link" :to="{ name: 'Signup' }">Signup</router-link>
+    <div v-if="userLoggedIn === true">
+      <button class="nav-link" @click="logout">Logout</button>
+    </div>
+    <div v-else>
+      <router-link class="nav-link" :to="{ name: 'Signup' }">Signup</router-link>
+      <router-link class="nav-link" :to="{ name: 'Login' }">Login</router-link>
+    </div>
   </nav>
 </template>
 
-<script></script>
+<script>
+import { clearStorage, getStorage } from '../assets/localStorage';
+
+export default {
+  data() {
+    return {
+      userLoggedIn: false
+    };
+  },
+  methods: {
+    redirect() {
+      this.$router.push({ name: 'Home' });
+    },
+    logout() {
+      clearStorage('access_token');
+      this.userLoggedIn = false;
+      this.redirect();
+    },
+    isUserConnected() {
+      const token = getStorage('access_token');
+      if (token) {
+        this.userLoggedIn = true;
+      } else {
+        this.userLoggedIn = false;
+      }
+    }
+  }
+  //TODO: when checkng if user is logged in, it should check if token is valid and change navbar accordingly
+};
+</script>
 
 <style>
+.logo {
+  cursor: pointer;
+  font-size: 2rem;
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
@@ -32,7 +72,8 @@
 }
 
 .nav-link:hover {
-  text-decoration: underline;
+  background-color: #555;
+  color: #fefefe;
 }
 
 .router-link-exact-active {
