@@ -6,6 +6,7 @@ import jwtMiddleware from "../middleware/jwtToken.js";
 const authController = {
   signup: async function (request, response, next) {
     const user = request.body;
+    console.log(request.body)
     try{
       const verifyUser = await userDatamapper.getOne(user.email.toLowerCase());
       if(!user.email || !user.password){
